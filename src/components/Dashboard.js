@@ -1,8 +1,7 @@
 import React, {Component} from "react";
-
 import classnames from "classnames";
-
 import Loading from "./Loading";
+import Panel from "./Panel";
 
 const data = [
   {
@@ -29,17 +28,40 @@ const data = [
 
 class Dashboard extends Component {
   state = {
-    loading: true,
+    loading: false,
+    focused: null,
   };
 
-  render() {
-    const dashboardClasses = classnames("dashboard");
+  selectPanel(id) {
+    this.setState({
+      focused: this.state.focused ? null : id,
+    });
+  }
 
+  render() {
+    const dashboardClasses = classnames("dashboard", {
+      "dashboard--focused": this.state.focused,
+    });
     if (this.state.loading) {
       return <Loading />;
     }
 
-    return <main className={dashboardClasses} />;
+    const panels = data
+      .filter(
+        (panel) =>
+          this.state.focused === null || this.state.focused === panel.id
+      )
+      .map((panel) => (
+        <Panel
+          key={panel.id}
+          id={panel.id}
+          label={panel.label}
+          value={panel.value}
+          onSelect={(e) => this.selectPanel(panel.id)}
+        />
+      ));
+
+    return <main className={dashboardClasses}>{panels}</main>;
   }
 }
 
